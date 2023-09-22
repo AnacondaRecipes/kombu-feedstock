@@ -1,32 +1,34 @@
-{% set version = "5.0.2" %}
+{% set name = "kombu" %}
+{% set version = "5.2.2" %}
+
 
 package:
-  name: kombu
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.org/packages/source/k/kombu/kombu-{{ version }}.tar.gz
-  sha256: f4965fba0a4718d47d470beeb5d6446e3357a62402b16c510b6a2f251e05ac3c
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kombu-{{ version }}.tar.gz
+  sha256: 0f5d0763fb916808f617b886697b2be28e6bc35026f08e679697fc814b48a608
+  patches:
+    - fix_test_txt.patch
 
 build:
-  number: 1
-  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
   host:
     - python
     - pip
+    - setuptools
+    - wheel
   run:
     - python
-    - importlib_metadata >=0.18  # [py<=37]
-    - amqp >=5.0.0,<6.0.0
+    - importlib_metadata >=0.18  # [py<38]
+    - amqp >=5.0.6,<6.0.0
     - vine
 
 test:
-  requires:
-    - pip
-  commands:
-    - pip check
   imports:
     - kombu
     - kombu.asynchronous
@@ -35,14 +37,23 @@ test:
     - kombu.transport
     - kombu.transport.virtual
     - kombu.utils
+  requires:
+    - pip
+  commands:
+    - pip check
 
 about:
   home: https://kombu.readthedocs.org
   license_file: LICENSE
   license: BSD-3-Clause
+  license_family: BSD
   summary: Messaging library for Python
+  description: |
+    Kombu is a messaging library for Python.
+    The aim of Kombu is to make messaging in Python as easy as possible by providing an idiomatic high-level interface for the AMQ protocol, and also provide proven and tested solutions to common messaging problems.
+    AMQP is the Advanced Message Queuing Protocol, an open standard protocol for message orientation, queuing, routing, reliability and security, for which the RabbitMQ messaging server is the most popular implementation.
   dev_url: https://github.com/celery/kombu
-  doc_url: https://kombu.readthedocs.org
+  doc_url: https://docs.celeryq.dev/projects/kombu
 
 extra:
   recipe-maintainers:
