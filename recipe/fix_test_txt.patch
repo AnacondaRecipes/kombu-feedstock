@@ -1,0 +1,22 @@
+From 001ed9938e45ffc75b89c3b965a0c738bef92c89 Mon Sep 17 00:00:00 2001
+From: Serhii Kupriienko
+Date: Fri, 22 Sep 2023 15:33:38 +0300
+Subject: [PATCH] Fix test.txt
+
+---
+ requirements/test.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/requirements/test.txt b/requirements/test.txt
+index 7566efae..e961e15f 100644
+--- a/requirements/test.txt
++++ b/requirements/test.txt
+@@ -1,4 +1,4 @@
+-pytz>dev
++pytz
+ pytest~=6.2
+ pytest-sugar
+ Pyro4
+-- 
+2.39.0
+
