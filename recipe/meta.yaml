@@ -46,6 +46,7 @@ test:
     - pytest >=6.2,<7
     - pytest-sugar
     - redis
+    - redis-py
   commands:
     - pip check
     - pytest t/ -vv -k "not test_failed_credentials"
