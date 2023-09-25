@@ -38,10 +38,17 @@ test:
     - kombu.transport
     - kombu.transport.virtual
     - kombu.utils
+  source_files:
+    - t/
   requires:
     - pip
+    - pytz
+    - pytest >=6.2,<7
+    - pytest-sugar
+    - redis
   commands:
     - pip check
+    - pytest t/ -vv -k "not test_failed_credentials"
 
 about:
   home: https://kombu.readthedocs.org
