@@ -1,5 +1,5 @@
 {% set name = "kombu" %}
-{% set version = "5.2.2" %}
+{% set version = "5.5.4" %}
 
 
 package:
@@ -7,14 +7,14 @@ package:
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kombu-{{ version }}.tar.gz
-  sha256: 0f5d0763fb916808f617b886697b2be28e6bc35026f08e679697fc814b48a608
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 886600168275ebeada93b888e831352fe578168342f0d1d5833d88ba0d847363
   patches:
     - fix_test_txt.patch
 
 build:
   number: 0
-  skip: true  # [py<37]
+  skip: true  # [py<38]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
@@ -24,13 +24,13 @@ requirements:
   host:
     - python
     - pip
-    - setuptools
-    - wheel
   run:
     - python
-    - importlib_metadata >=0.18  # [py<38]
-    - amqp >=5.0.6,<6.0.0
-    - vine
+    - amqp >=5.1.1,<6.0.0
+    - vine ==5.1.0
+    - backports.zoneinfo >=0.2.1  # [py<39]
+    - tzdata >=2025.2  # [py>=39]
+    - packaging
 
 test:
   imports:
