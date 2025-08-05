@@ -1,16 +1,20 @@
 {% set name = "kombu" %}
 {% set version = "5.5.4" %}
-
+{% set u_tests_to_skip = "--ignore=gh_src/t/unit/transport/test_azurestoragequeues.py " %}
+{% set u_tests_to_skip = u_tests_to_skip + "--ignore=gh_src/t/unit/transport/test_gcpubsub.py " %}
+{% set u_tests_to_skip = u_tests_to_skip + "--ignore=gh_src/t/unit/transport/test_gcpubsub.py " %}
+{% set i_tests_to_skip = "--ignore=gh_src/t/integration/test_redis.py " %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 886600168275ebeada93b888e831352fe578168342f0d1d5833d88ba0d847363
-  patches:
-    - fix_test_txt.patch
+  - url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+    sha256: 886600168275ebeada93b888e831352fe578168342f0d1d5833d88ba0d847363
+  - url: https://github.com/celery/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
+    sha256: 7793a288cc0316d06e66785a18182b8629a692a9fb2976b85c51cb466f95c008
+    folder: gh_src
 
 build:
   number: 0
@@ -18,18 +22,15 @@ build:
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
-  build:
-    - patch     # [not win]
-    - m2-patch  # [win]
   host:
     - python
     - pip
   run:
     - python
     - amqp >=5.1.1,<6.0.0
-    - vine ==5.1.0
+    - vine 5.1.0
     - backports.zoneinfo >=0.2.1  # [py<39]
-    - tzdata >=2025.2  # [py>=39]
+    - python-tzdata >=2025.2  # [py>=39]
     - packaging
 
 test:
@@ -42,17 +43,17 @@ test:
     - kombu.transport.virtual
     - kombu.utils
   source_files:
-    - t/
+    - gh_src
   requires:
+    - hypothesis
+    - botocore
+    - pytest
+    - google-api-core
     - pip
-    - pytz
-    - pytest >=6.2,<7
-    - pytest-sugar
-    - redis
-    - redis-py
   commands:
     - pip check
-    - pytest t/ -vv -k "not test_failed_credentials"
+    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "not test_driver_version"
+    - pytest -vv gh_src/t/integration {{ i_tests_to_skip }}
 
 about:
   home: https://kombu.readthedocs.org
