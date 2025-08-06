@@ -24,6 +24,7 @@ build:
 requirements:
   host:
     - python
+    - setuptools
     - wheel
     - pip
   run:
@@ -47,7 +48,7 @@ test:
   source_files:
     - gh_src
   requires:
-    - hypothesis
+    - hypothesis <7
     - botocore
     - pytest
     - google-api-core
