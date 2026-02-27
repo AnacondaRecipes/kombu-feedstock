@@ -53,6 +53,7 @@ test:
     - pip
   commands:
     - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
     - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "not test_driver_version"
     - pytest -vv gh_src/t/integration {{ i_tests_to_skip }}
 
