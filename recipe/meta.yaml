@@ -60,7 +60,7 @@ test:
     - pytest -vv gh_src/t/integration {{ i_tests_to_skip }}
 
 about:
-  home: https://kombu.readthedocs.org
+  home: https://kombu.readthedocs.io
   license_file: LICENSE
   license: BSD-3-Clause
   license_family: BSD
