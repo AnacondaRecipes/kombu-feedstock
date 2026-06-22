@@ -2,27 +2,27 @@
 {% set version = "5.6.2" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  - url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  - url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
     sha256: 8060497058066c6f5aed7c26d7cd0d3b574990b09de842a8c5aaed0b92cc5a55
   - url: https://github.com/celery/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
     sha256: 345614c51ab6b54cdb5504e2e00cbb4789f1787520c282e5b3d666e475a375da
     folder: gh_src
 
 build:
-  number: 0
+  number: 1
   skip: true  # [py<39]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
   host:
-    - python
-    - setuptools
-    - wheel
     - pip
+    - python
+    - wheel
+    - setuptools
   run:
     - python
     - amqp >=5.1.1,<6.0.0
