@@ -38,6 +38,13 @@ requirements:
 # redis/sqs integration tests need live services; test_sqs.py also imports
 # boto3 unconditionally, which breaks collection. Other integration tests
 # self-skip through their pytest.mark.env(...) markers.
+
+# Upstream unit-test defects, not package defects:
+#   test_get_closes_file_when_read_fails moves a fixed filename into the shared
+#     temp dir and fails once a previous run has left one there (not re-runnable).
+#   test_subprocess_oid asks multiprocessing for a 'forkserver' context, which
+#     does not exist on Windows.
+{% set u_deselect = "not test_driver_version and not test_get_closes_file_when_read_fails" %}
 test:
   imports:
     - kombu
@@ -61,7 +68,8 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "not test_driver_version"
+    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "{{ u_deselect }} and not test_subprocess_oid"  # [win]
+    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "{{ u_deselect }}"  # [not win]
     - pytest -vv gh_src/t/integration {{ i_tests_to_skip }}
 
 about:
