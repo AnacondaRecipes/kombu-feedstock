@@ -1,5 +1,5 @@
 {% set name = "kombu" %}
-{% set version = "5.6.2" %}
+{% set version = "5.7.0" %}
 
 package:
   name: {{ name }}
@@ -7,14 +7,14 @@ package:
 
 source:
   - url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-    sha256: 8060497058066c6f5aed7c26d7cd0d3b574990b09de842a8c5aaed0b92cc5a55
+    sha256: 31e62fdfd2381caa3422f8e02b84a491d9a2180ddda74507b57f4cb1e1c2c2c9
   - url: https://github.com/celery/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-    sha256: 345614c51ab6b54cdb5504e2e00cbb4789f1787520c282e5b3d666e475a375da
+    sha256: 4a2e4e9a4ba5c30b29a855d53ac46b428c3c399c2632fbd2988de9fa2e7ffbca
     folder: gh_src
 
 build:
-  number: 1
-  skip: true  # [py<39]
+  number: 0
+  skip: true  # [py<310]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
@@ -25,17 +25,26 @@ requirements:
     - setuptools
   run:
     - python
-    - amqp >=5.1.1,<6.0.0
+    - amqp >=5.4.2
     - vine ==5.1.0
-    - python-tzdata >=2025.2
-    - packaging
+    - python-tzdata >=2026.2  # [win]
 
 
 {% set u_tests_to_skip = "--ignore=gh_src/t/unit/transport/test_azurestoragequeues.py " %}
 {% set u_tests_to_skip = u_tests_to_skip + "--ignore=gh_src/t/unit/transport/test_gcpubsub.py " %}
-{% set u_tests_to_skip = u_tests_to_skip + "--ignore=gh_src/t/unit/transport/test_gcpubsub.py " %}
 {% set i_tests_to_skip = "--ignore=gh_src/t/integration/test_redis.py " %}
+{% set i_tests_to_skip = i_tests_to_skip + "--ignore=gh_src/t/integration/test_sqs.py " %}
 
+# redis/sqs integration tests need live services; test_sqs.py also imports
+# boto3 unconditionally, which breaks collection. Other integration tests
+# self-skip through their pytest.mark.env(...) markers.
+
+# Upstream unit-test defects, not package defects:
+#   test_get_closes_file_when_read_fails moves a fixed filename into the shared
+#     temp dir and fails once a previous run has left one there (not re-runnable).
+#   test_subprocess_oid asks multiprocessing for a 'forkserver' context, which
+#     does not exist on Windows.
+{% set u_deselect = "not test_driver_version and not test_get_closes_file_when_read_fails" %}
 test:
   imports:
     - kombu
@@ -53,10 +62,14 @@ test:
     - pytest
     - google-api-core
     - pip
+    # test_filesystem.py imports kombu.transport.filesystem at module level and
+    # that module imports pywintypes on Windows.
+    - pywin32  # [win]
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "not test_driver_version"
+    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "{{ u_deselect }} and not test_subprocess_oid"  # [win]
+    - pytest -vv gh_src/t/unit {{ u_tests_to_skip }} -k "{{ u_deselect }}"  # [not win]
     - pytest -vv gh_src/t/integration {{ i_tests_to_skip }}
 
 about:
