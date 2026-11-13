@@ -55,6 +55,9 @@ test:
     - pytest
     - google-api-core
     - pip
+    # test_filesystem.py imports kombu.transport.filesystem at module level and
+    # that module imports pywintypes on Windows.
+    - pywin32  # [win]
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
